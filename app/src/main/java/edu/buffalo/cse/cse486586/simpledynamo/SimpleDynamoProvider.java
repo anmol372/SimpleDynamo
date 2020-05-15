@@ -126,7 +126,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 			Log.e("delete", "No Such Algorithm exception caught");
 			e.printStackTrace();
 		}
-		Log.d("args", "uri: "+uri+"  selection: "+selection+"  selectionArgs: "+selectionArgs);
+		Log.d("del", "selection: "+selection+"  selectionArgs: "+selectionArgs);
 
 		if(selection.equals("@"))
 		{
@@ -185,7 +185,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 					insIndex = i;
 				}
 			}
-			Log.d("send query to", "" + keyStoreS);
+			Log.d("delete for", "port" + keyStoreS+" s:"+selection);
 
 			String[] toClient;
 			String delKV = del + delim + portStr + delim + selection;
@@ -196,7 +196,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 //exp
 			if(keyStoreS.equals(portStr) ||  keyStoreS1.equals(portStr) || keyStoreS2.equals(portStr))
 			{ // || selectionArgs != null
-				//writeLock.lock();
+				writeLock.lock();
 				try {
 					//r.lock();
 					File dir = getContext().getFilesDir();
@@ -213,12 +213,12 @@ public class SimpleDynamoProvider extends ContentProvider {
 					e.printStackTrace();
 				}finally {
 					//r.unlock();
-					//writeLock.unlock();
+					writeLock.unlock();
 				}
 				//toClient = new String[]{sendTo, Integer.toString(2), keyStoreS2, keyStoreS, delKV};
 			}
 
-			if(selectionArgs != null) {
+			if(selectionArgs == null) {
 				Log.d("sending del", "to:"+keyStoreS2+" "+keyStoreS1+" "+keyStoreS);
 				toClient = new String[]{sendTo, Integer.toString(3), keyStoreS2, keyStoreS1, keyStoreS, delKV};
 				//new ClientTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, toClient);
@@ -360,7 +360,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 			e.printStackTrace();
 		}
 
-		delete(null, "@", new String[]{"noFwding"});
+		//delete(null, "@", new String[]{"noFwding"});
 
 		indexOfCurrentNode = allNodes.indexOf(nodeId);
 		//pred1 & pred2 for recovery
@@ -634,6 +634,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 					}
 					//readLock.unlock();
 					bufferedInputStream.close();
+					Log.d("local:", "sel: "+selection+" val: "+msgValue);
 				} catch (FileNotFoundException e) {
 					Log.e("FNF", "File Not Found To Read for iteration ");
 				} catch (IOException e) {
@@ -645,6 +646,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 				String[] columnNames= {"key", "value"};
 				MatrixCursor msgCursor= new MatrixCursor(columnNames);
 				msgCursor.addRow(new String[]{selection, msgValue});
+
 				return msgCursor;
 			}
 
@@ -928,15 +930,17 @@ public class SimpleDynamoProvider extends ContentProvider {
 
 			else if(msgs[0].equals(delAll) || msgs[0].equals(del))
 			{
+				Log.d("server del", "selection: "+msgs[2]+" port: "+ portStr);
+
 				String senderNode = msgs[1];
 				String selection = msgs[2];
-				Log.d("server delAll", "selection: "+msgs[2]+" port: "+ portStr);
 				if(selection.equals("@") || selection.equals("*"))
 				{
 				int temp = delete(null, selection, new String[]{"noFwding"});
 				}
-				else
+				else if(!senderNode.equals(portStr))
 				{
+					Log.d("will","delete selection "+selection);
 					//ReentrantLock r = new ReentrantLock();
 					writeLock.lock();
 					try {
@@ -1243,6 +1247,12 @@ public class SimpleDynamoProvider extends ContentProvider {
 				} catch (Exception er) {
 					Log.e("client nested er", "Exception: " + er.getMessage());
 				}
+			}
+
+			try {
+				Thread.sleep(20);
+			}catch(InterruptedException e) {
+				e.printStackTrace();
 			}
 
 			return 1;
