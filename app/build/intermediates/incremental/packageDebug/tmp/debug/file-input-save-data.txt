@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Fri May 15 18:43:30 EDT 2020
+#Fri May 15 21:03:15 EDT 2020
 0.baseType=DIRECTORY
 0.base=/Users/anmolrastogi/Documents/ds/SimpleDynamo/app/build/intermediates/dex/debug/mergeDexDebug/out
 0.path=classes.dex

@@ -313,6 +313,12 @@ public class SimpleDynamoProvider extends ContentProvider {
 		//new ClientTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, toClient);
 		try {
 			Integer i = new ClientTask().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, toClient).get();
+			//exp 9999
+			try {
+				Thread.sleep(20);
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
 		}catch(Exception e){
 			Log.e("Failed Client Task", "error: "+e.getMessage());
 			e.printStackTrace();
@@ -1206,6 +1212,7 @@ public class SimpleDynamoProvider extends ContentProvider {
 					String msg1 = input.readUTF();
 					Log.d("msg recv on client", "qfrm --> last: " + msg1);
 
+
 					socket.close();
 				} catch (IOException e) {
 					Log.e("socket client", "IO Exception: " + e.getMessage());
@@ -1248,12 +1255,12 @@ public class SimpleDynamoProvider extends ContentProvider {
 					Log.e("client nested er", "Exception: " + er.getMessage());
 				}
 			}
-
-			try {
+			//exp 999 commented
+			/*try {
 				Thread.sleep(20);
 			}catch(InterruptedException e) {
 				e.printStackTrace();
-			}
+			}*/
 
 			return 1;
 		}
